@@ -24,13 +24,13 @@ func main() {
 	close(requests)
 
 	// This `limiter` channel will receive a value
-	// every 200 milliseconds. This is the regulator in
+	// every 500 milliseconds. This is the regulator in
 	// our rate limiting scheme.
-	limiter := time.Tick(200 * time.Millisecond)
+	limiter := time.Tick(500 * time.Millisecond)
 
 	// By blocking on a receive from the `limiter` channel
 	// before serving each request, we limit ourselves to
-	// 1 request every 200 milliseconds.
+	// 1 request every 500 milliseconds.
 	for req := range requests {
 		<-limiter
 		fmt.Println("request", req, time.Now())
@@ -48,10 +48,10 @@ func main() {
 		burstyLimiter <- time.Now()
 	}
 
-	// Every 200 milliseconds we'll try to add a new
+	// Every 500 milliseconds we'll try to add a new
 	// value to `burstyLimiter`, up to its limit of 3.
 	go func() {
-		for t := range time.Tick(200 * time.Millisecond) {
+		for t := range time.Tick(500 * time.Millisecond) {
 			burstyLimiter <- t
 		}
 	}()
@@ -66,6 +66,6 @@ func main() {
 	close(burstyRequests)
 	for req := range burstyRequests {
 		<-burstyLimiter
-		fmt.Println("request", req, time.Now())
+		fmt.Println("request with bursted requests", req, time.Now())
 	}
 }
